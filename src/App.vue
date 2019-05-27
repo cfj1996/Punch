@@ -1,4 +1,3 @@
-
 <script>
 export default {
   onLaunch (options) {
@@ -24,3 +23,14 @@ export default {
   }
 }
 </script>
+<style>
+  page{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: auto;
+  }
+  view{
+    box-sizing: border-box;
+  }
+</style>

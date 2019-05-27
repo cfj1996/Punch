@@ -1,16 +1,11 @@
 <template>
   <div class="app">
       <img class="img" :src="logo" @touchstart="changeStat">
-      <hello-world :msg="acc" :color="color"></hello-world>
   </div>
 </template>
 
 <script>
-import HelloWorld from '@/components/HelloWorld.vue'
 export default {
-  components: {
-    HelloWorld
-  },
   data () {
     return {
       logo: 'https://user-images.githubusercontent.com/20720117/48262986-80e02780-e45f-11e8-8426-2872916adad9.png',

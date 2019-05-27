@@ -3,20 +3,24 @@
     <date-head @prev="prevView" @next="nextView" :centerHeader="true" :indicator="shownIndicator"/>
 
     <div class="calendar__main">
-      <div class="calendar__today" @click="goToday">
-        今天
-      </div>
+      <!--<div class="calendar__today" @click="goToday">-->
+        <!--今天-->
+      <!--</div>-->
       <div class="calendar__date">
         <!-- 星期 -->
         <div class="calendar__weekdays">
           <div v-for="(weekDay, key) in weekDays" class="calendar__weekday" :key="key">{{weekDay}}</div>
         </div>
         <!-- 日期 -->
-        <div class="calendar__days">
-          <div class="calendar__day" v-for="(day, key) in days" :key="key"
-               :class="{'calendar__day_now': checkToday(day), 'calendar__day_selected': checkSelected(day), 'calendar__day_othermonth': checkOtherMonth(day), 'calendar__day_decorate': checkDecorate(day)}"
-               @click="select(day)">
-            <span>{{day.getDate()}}<i class="sub" v-if="checkSub(day)" :style="{color: checkSub(day).color}">{{checkSub(day).content}}</i></span>
+        <div class="date-view" @touchstart="touchStart" @touchend="touchEnd">
+          <div class="slide-view" :style="slide">
+            <div class="calendar__days"  v-for="(view, key1) in viewSlide" :style="{left: view.left}" :key="key1">
+              <div class="calendar__day" v-for="(day, key) in view.data" :key="key"
+                   :class="{'calendar__day_now': checkToday(day), 'calendar__day_selected': checkSelected(day), 'calendar__day_othermonth': checkOtherMonth(day), 'calendar__day_decorate': checkDecorate(day)}"
+                   @click="select(day)">
+                <span>{{day.getDate()}}<i class="sub" v-if="checkSub(day)" :style="{color: checkSub(day).color}">{{checkSub(day).content}}</i></span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -92,23 +96,23 @@
   }
   }
   & .calendar__main {
-      display: flex;
+    position: relative;
     }
   & .calendar__today {
-      flex: none;
+      position: absolute;
       width: 20px;
-      padding: 5px 0;
-      margin-left: 8px;
+      padding: 4px 0;
       border-radius: 10px;
       align-self: flex-start;
       background: #31b29c;
       font-size: 11px;
       text-align: center;
       color: #fff;
+      z-index: 9999;
     }
   & .calendar__date {
-      width: 100px;
-      flex: 1 0 auto;
+      width: 100%;
+      position: relative;
     }
   & .calendar__weekdays {
       margin: 0;
@@ -123,11 +127,23 @@
       text-align: center;
     }
   }
-  & .calendar__days{
-      display: flex;
-      flex-wrap: wrap;
-      padding-bottom: 10px;
+    & .date-view{
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      .slide-view{
+        transition: transform .5s ;
+        display: flex;
+        height: 180px;
+        position: relative;
+      }
 
+    }
+  & .calendar__days{
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: 0;
   & .calendar__day {
       position: relative;
       flex: 0 0 auto;
@@ -211,7 +227,11 @@ export default {
   },
   data () {
     return {
-      viewSlide: []
+      viewSlide: [],
+      Subscript: [0],
+      index: 0,
+      left: 0,
+      startX: null
     }
   },
   props: {
@@ -324,13 +344,11 @@ export default {
         weekDayNames.push(sunday)
       }
       return weekDayNames
-    }
-  },
-  watch: {
-    days () {
-      this.currentView = {
-        start: this.days[0],
-        end: this.days[this.days.length - 1]
+    },
+    slide () {
+      return {
+        width: '100%',
+        transform: `translateX(${-this.index * 100}% )`
       }
     }
   },
@@ -367,6 +385,17 @@ export default {
       } else {
         this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate() - 7)
       }
+      let tempArr = [...this.days]
+      this.viewSlide.unshift({ data: tempArr, left: (this.index - 1) * 100 + '%' })
+      if (this.viewSlide.length > 3) {
+        this.viewSlide.pop()
+      }
+      this.index--
+      // this.zji = 0
+      if (!this.Subscript.includes(this.index)) {
+        this.Subscript.unshift(this.index)
+      }
+      console.log(this.viewSlide)
     },
     nextView () {
       if (this.view === 'month') {
@@ -374,23 +403,40 @@ export default {
       } else {
         this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate() + 7)
       }
+      let tempArr = [...this.days]
+      this.viewSlide.push({ data: tempArr, left: (this.index + 1) * 100 + '%' })
+      if (this.viewSlide.length > 3) {
+        this.viewSlide.shift()
+      }
+      this.index++
+      if (!this.Subscript.includes(this.index)) {
+        this.Subscript.push(this.index)
+      }
     },
     select (day) {
       this.selected = day
+      this.$emit('modeData', new Date(day).getTime())
+      console.log()
     },
     goToday () {
       this.startDate = new Date()
       this.selected = new Date()
-      this.$nextTick(() => {
-        this.$emit('today')
-      })
+      this.index = 0
+    },
+    touchStart (e) {
+      this.startX = e.changedTouches[0].clientX
+    },
+    touchEnd (e) {
+      if (e.changedTouches[0].clientX - this.startX > 100) {
+        this.prevView()
+      } else if (this.startX - e.changedTouches[0].clientX > 100) {
+        this.nextView()
+      }
     }
   },
-  create () {
-    this.currentView = {
-      start: this.days[0],
-      end: this.days[this.days.length - 1]
-    }
+  mounted () {
+    let tempArr = [...this.days]
+    this.viewSlide.push({ data: tempArr, left: this.index * 100 + '%' })
   }
 }
 </script>
