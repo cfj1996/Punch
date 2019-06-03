@@ -2,21 +2,26 @@
   <div class="app">
     <calendar @modeData="modeDate" stayus="current"/>
     <now :time="date"></now>
+    <my-content :date="getDate"/>
   </div>
 </template>
 
 <script>
-import Calendar from '@/components/calendar'
+import moment from 'moment'
+import Calendar from '../components/calendar'
 import Now from '../components/content/now'
+import myContent from '../components/content/content'
 
 export default {
   components: {
     Calendar,
-    Now
+    Now,
+    myContent
   },
   data () {
     return {
-      date: new Date().getTime()
+      date: new Date().getTime(),
+      getDate: moment().format('YYYY-MM-DD')
     }
   },
   methods: {
@@ -25,19 +30,9 @@ export default {
     }
   },
   created () {
-    console.log(11111111111)
     this.$http({ url: '/home' }).then((res) => {
       console.log(res)
     })
   }
 }
 </script>
-
-<style lang="less" scoped>
-  .content {
-    margin-top: 50px;
-    min-height: 200px;
-    width: 100%;
-    border: 1px solid red;
-  }
-</style>
