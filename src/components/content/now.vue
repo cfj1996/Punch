@@ -20,11 +20,7 @@
 </style>
 <template>
   <div class="component">
-    <canvas style="width: 80px; height: 80px;" canvas-id="firstCanvas"></canvas>
-    <div class="daka">
-      <div class="msg">{{ msg }}</div>
-      <div class="date">{{ date }}</div>
-    </div>
+    <canvas @click="onClick" style="width: 80px; height: 80px;" canvas-id="firstCanvas"></canvas>
   </div>
 </template>
 
@@ -35,8 +31,18 @@ export default {
   name: 'content',
   data () {
     return {
-      msg: '上班打卡',
-      date: moment().format('HH:mm:ss')
+      canvasData: {
+        canvas: wx.createCanvasContext(),
+        myCanvas: wx.createCanvasContext('firstCanvas'),
+        text: '上班打卡',
+        date: moment().format('HH:mm:ss'),
+        step: 0,
+        width: 80,
+        height: 80,
+        bunColor: '#0feadd',
+        path: '#20ffd3',
+        textColor: '#000000'
+      }
     }
   },
   props: {
@@ -50,61 +56,49 @@ export default {
       type: String
     }
   },
-  async created () {
-    let res = await this.$http({ url: '/findNow', data: { time: this.time }, method: 'POST' })
-    console.log(res)
-  },
-  mounted () {
-    let context = wx.createCanvasContext('firstCanvas')
-    // context.setStrokeStyle("#00ff00")
-    // context.setLineWidth(5)
-    // context.rect(0, 0, 200, 200)
-    // context.stroke()
-    // context.setStrokeStyle("#ff0000")
-    // context.setLineWidth(2)
-    // context.moveTo(160, 100)
-    // context.arc(100, 100, 60, 0, 2 * Math.PI, true)
-    // context.moveTo(140, 100)
-    // context.arc(100, 100, 40, 0, Math.PI, false)
-    // context.moveTo(85, 80)
-    // context.arc(80, 80, 5, 0, 2 * Math.PI, true)
-    // context.moveTo(125, 80)
-    // context.arc(120, 80, 5, 0, 2 * Math.PI, true)
-    // context.stroke()
-    // context.draw()
-    let canvas = {}
-    canvas.width = 80
-    canvas.height = 80
-    // 初始角度为0
-    let step = 0
-    // 定义三条不同波浪的颜色
-    let lines = ['rgba(59, 239, 215, 0.25)']
-
-    function loop () {
-      context.clearRect(0, 0, canvas.width, canvas.height)
-      step++
-      let angle = (step + 45) * Math.PI / 180
-      let deltaHeight = Math.sin(angle) * 50
-      let deltaHeightRight = Math.cos(angle) * 50
+  methods: {
+    onClick () {
+      console.log(1)
+    },
+    canvas () {
+      let context = this.canvasData.myCanvas
+      this.canvasData.step++
+      context.clearRect(0, 0, this.canvasData.width, this.canvasData.height)
       context.beginPath()
-      context.moveTo(0, canvas.height / 2 + deltaHeight)
-      context.bezierCurveTo(canvas.width / 2, canvas.height / 2 + deltaHeight - 50, canvas.width / 2, canvas.height / 2 + deltaHeightRight - 50, canvas.width, canvas.height / 2 + deltaHeightRight)
-      context.lineTo(canvas.width, canvas.height)
-      context.lineTo(0, canvas.height)
-      context.lineTo(0, canvas.height / 2 + deltaHeight)
-      context.stroke()
-      context.setStrokeStyle = '#3befd7'
+      context.arc(this.canvasData.width / 2, this.canvasData.height / 2, this.canvasData.height / 2, 0, 2 * Math.PI)
+      context.setFillStyle(this.canvasData.bunColor)
       context.fill()
+      // context.draw()
+      let angle = (this.canvasData.step + 10) * Math.PI / 180
+      let deltaHeight = Math.sin(angle) * 10
+      let deltaHeightRight = Math.cos(angle) * 10
+      context.beginPath()
+      context.moveTo(0, this.canvasData.height / 2)
+      context.bezierCurveTo(this.canvasData.width / 2, this.canvasData.height / 2 + deltaHeight, this.canvasData.width / 2, this.canvasData.height / 2 + deltaHeightRight, this.canvasData.width, this.canvasData.height / 2)
+      context.arc(this.canvasData.width / 2, this.canvasData.height / 2, this.canvasData.height / 2, 0, Math.PI)
+      context.setStrokeStyle(this.canvasData.path)
+      context.stroke()
+      context.setFillStyle(this.canvasData.path)
+      context.fill()
+      context.setFontSize(15)
+      context.setFillStyle(this.canvasData.textColor)
+      context.fillText(this.canvasData.text, 10, 30)
+      context.setFontSize(15)
+      context.setFillStyle(this.canvasData.textColor)
+      context.fillText(moment().format('HH:mm:ss'), 10, 60)
       context.draw()
-      requestAnimationFrame(function () {
-        loop()
-      })
+      // let myCanvas = this.canvasData.myCanvas
+      // myCanvas.drawImage(context, 0, 0, this.canvasData.width, this.canvasData.height)
+      // myCanvas.draw()
+      setTimeout(this.canvas, 16.6666)
     }
-
-    loop()
-    setInterval(() => {
-      this.date = moment().format('HH:mm:ss')
-    }, 1000)
+  },
+  async created () {
+    // let res = await this.$http({ url: '/findNow', data: { time: this.time }, method: 'POST' })
+    // console.log(res)
+  },
+  onReady () {
+    this.canvas()
   }
 }
 </script>

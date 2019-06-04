@@ -38,7 +38,7 @@ export default {
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
-      navigationBarTitleText: 'megalo project',
+      navigationBarTitleText: '快乐工作',
       navigationBarTextStyle: 'black'
     }
   }

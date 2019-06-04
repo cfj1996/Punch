@@ -67,13 +67,11 @@
 </template>
 
 <script>
-import img from '@/static/imgs/test.jpg'
-console.log(img)
 export default {
   name: 'content',
   data () {
     return {
-      img: '/' + img,
+      img: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Free-1080-x-1920-HD-Wallpapers-Download.jpg',
       goTime: 'aa',
       fromTime: 'bb'
     }
