@@ -35,7 +35,7 @@
     "@megalo/vhtml-plugin": "latest",
     "babel-preset-es2016": "^6.24.1",
     "megalo": "latest",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "octoparse": "^0.3.2",
     "regenerator-runtime": "^0.13.2",
     "vue-calendar-mobile": "^0.1.9"
